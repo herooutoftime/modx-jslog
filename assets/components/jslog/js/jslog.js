@@ -19,8 +19,6 @@
  * @package jslog
  */
 
-console.log('HELLO JS LOG!');
-
 /**
  * JavaScript Client Detection
  * (C) viazenetti GmbH (Christian Ludwig)
@@ -206,6 +204,12 @@ console.log('HELLO JS LOG!');
 window.onerror = function (msg, jsUrl, line)
 {
   Ext.onReady(function() {
+    
+    if(!JSLog.config.enabled) {
+      console.log('SORRY, NOT ALLOWED TO WORK!');
+      console.log('CHANGE JSLog SET ENABLED YES');
+      return;
+    }
 
     // MGR Context
     function get_browser_info(){

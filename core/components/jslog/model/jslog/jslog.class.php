@@ -54,25 +54,47 @@ class JSLog {
             'assetsUrl'      => $assetsUrl,
             'connectorUrl'   => $assetsUrl.'connector.php',
             'errorPath'      => $this->modx->getOption('core_path') . 'cache/jslog/',
+            'enabled'        => (bool) $this->modx->getOption('jslog.enabled'),
             ),$config);
     }
 
+    /**
+     * Set current error
+     * @param array $data Error data
+     */
     public function setError($data)
     {
       $data = json_decode($data, true);
       $data['time'] = $this->setTimeData();
       $data['user'] = $this->setUserData();
 
-      $data['key'] = $this->generateKey(serialize($data));
+      $data['key'] = $this->generateKey($data);
       $this->error = $data;
 
     }
 
-    public function generateKey($value)
+    /**
+     * Generate file key
+     * @param  mixed $data JSON-string or array
+     * @return string       MD5 string
+     */
+    public function generateKey($data)
     {
-      return md5($value);
+      // String (JSONified) need to be converted to Array
+      if(is_string($data))
+        $data = json_decode($data, true);
+
+      // Take time sensitive data out of key generation
+      unset($data['time']);
+
+      // Serialize & MD5
+      return md5(serialize($data));
     }
 
+    /**
+     * Set user data
+     * Only returns id & username
+     */
     public function setUserData()
     {
       $user = $this->modx->getUser();
@@ -85,6 +107,10 @@ class JSLog {
       // return array_diff_key($userArr, array_flip($bad_keys));
     }
 
+    /**
+     * Set time data
+     * Timestamp & nice formatted date
+     */
     public function setTimeData()
     {
       return array(
@@ -93,6 +119,10 @@ class JSLog {
       );
     }
 
+    /**
+     * Create the error file
+     * @return [type] [description]
+     */
     public function createFile()
     {
       if(!is_dir($this->config['errorPath']))
@@ -104,6 +134,10 @@ class JSLog {
       }
     }
 
+    /**
+     * Check if an error exists and if we should be remembered of its existence
+     * @return boolean Either TRUE or FALSE
+     */
     public function errorExists()
     {
       $remember = $this->errorRemember();
@@ -112,9 +146,15 @@ class JSLog {
       return false;
     }
 
+    /**
+     * Check if this error is overdue of fixing
+     *
+     * Set interval via system settings
+     *
+     * @return boolean TRUE or FALSE
+     */
     public function errorRemember()
     {
-
       $interval = $this->modx->getOption('jslog.error_interval', '', 0);
       $file = new SplFileInfo($this->config['errorPath'] . $this->error['key']);
       $interval = 0;
@@ -126,6 +166,11 @@ class JSLog {
       return false;
     }
 
+    /**
+     * Write to custom error log
+     *
+     * @return [type] [description]
+     */
     public function errorLog()
     {
       $this->modx->log(xPDO::LOG_LEVEL_ERROR, json_encode($this->error),
@@ -133,9 +178,17 @@ class JSLog {
         '',
         'JS'
       );
-
     }
 
+    /**
+     * Send mail
+     *
+     * Mail will only be sent if error occurs:
+     * * 1st time
+     * * Reoccurs after set interval is met
+     *
+     * @return [type] [description]
+     */
     public function sendMail()
     {
 
