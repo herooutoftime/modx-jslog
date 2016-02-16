@@ -1,5 +1,9 @@
 Changelog for JSLog
 
+JSLog 1.0.2
+---------------------------------
+* Enable simple log rotation based on date
+
 JSLog 1.0.0
 ---------------------------------
 Initial Version
