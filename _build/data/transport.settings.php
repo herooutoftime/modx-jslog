@@ -28,11 +28,11 @@ $systemSettings = array();
 $systemSettings[1] = $modx->newObject('modSystemSetting');
 $systemSettings[1]->fromArray(array (
   'key' => 'jslog_system_setting_status',
+  'value' => true,
+  'xtype' => 'combo-boolean',
+  'namespace' => 'jslog',
+  'area' => 'jslog',
   'name' => 'jslog Status',
   'description' => 'Enable/Disable JSLog',
-  'namespace' => 'jslog',
-  'xtype' => 'combo-boolean',
-  'value' => true,
-  'area' => 'jslog',
 ), '', true, true);
 return $systemSettings;

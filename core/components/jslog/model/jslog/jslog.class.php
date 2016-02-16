@@ -37,7 +37,7 @@ class JSLog {
         $basePath = $this->modx->getOption('jslog.core_path', $config, $this->modx->getOption('core_path').'components/jslog/');
         $assetsPath = $this->modx->getOption('jslog.assets_path', $config, $this->modx->getOption('assets_path').'components/jslog/');
         $assetsUrl = $this->modx->getOption('jslog.assets_url', $config, $this->modx->getOption('assets_url').'components/jslog/');
-
+        
         $this->config = array_merge(array(
             'basePath'       => $basePath,
             'assetsPath'     => $assetsPath,

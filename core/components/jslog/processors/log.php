@@ -9,7 +9,9 @@ unset($scriptProperties['action']);
 // Log to custom log file
 // Path: {core_path}/cache/log/javascript.log
 $modx->log(xPDO::LOG_LEVEL_ERROR, json_encode($scriptProperties),
-  array('target'=>'FILE', 'options'=> array('filename'=>'javascript.log'))
+  array('target'=>'FILE', 'options'=> array('filename'=>'javascript.log')),
+  '',
+  'JS'
 );
 
 // Return something useful

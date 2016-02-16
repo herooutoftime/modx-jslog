@@ -20,24 +20,43 @@
  */
 
 console.log('HELLO JS LOG!');
+var Errors = [];
+Ext.onReady(function() {
+  window.onerror = function (msg, jsUrl, line)
+  {
+    // MGR Context
+    function get_browser_info(){
+      var ua=navigator.userAgent,tem,M=ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+      if(/trident/i.test(M[1])){
+          tem=/\brv[ :]+(\d+)/g.exec(ua) || [];
+          return {name:'IE',version:(tem[1]||'')};
+          }
+      if(M[1]==='Chrome'){
+          tem=ua.match(/\bOPR\/(\d+)/)
+          if(tem!=null)   {return {name:'Opera', version:tem[1]};}
+          }
+      M=M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+      if((tem=ua.match(/version\/(\d+)/i))!=null) {M.splice(1,1,tem[1]);}
+      return {
+        name: M[0],
+        version: M[1]
+      };
+    }
+    var browser = get_browser_info();
 
-window.onerror = function (msg, url, line)
-{
-
-  // MGR Context
-  Ext.onReady(function() {
-
-    var message = "Error in "+url+" on line "+line+": "+msg;
+    var data = {
+      action: 'log',
+      msg: msg,
+      jsUrl: jsUrl,
+      line: line,
+      browser: browser,
+      browserUrl: window.location
+    };
 
     Ext.Ajax.request({
       url: JSLog.config.connectorUrl,
-      params: {
-        action: 'log',
-        url: url,
-        line: line,
-        msg: msg,
-        message: message
-      },
+      jsonData: data,
+
       success: function(response, opts){
         // If the response is JSON, you have to decode it
         // var obj = Ext.decode(response.responseText);
@@ -50,7 +69,7 @@ window.onerror = function (msg, url, line)
       //   // use this if you need to perform your own success/failure checking
       // }
     });
-  });
+  };
 
   // WEB Context or any other frontend context
   // THIS COULD HANDLE JS ERROR WITHOUT JQUERY NEEDED
@@ -70,7 +89,7 @@ window.onerror = function (msg, url, line)
   //     }
   // }
   // http.send(params);
-};
+});
 
 // Test error
-test = test;
+// test = test;

@@ -71,7 +71,7 @@ if ($object->xpdo) {
             $intersects = array (
                 0 =>  array (
                   'pluginid' => 'jslog',
-                  'event' => 'OnWebPageInit',
+                  'event' => 'OnManagerPageInit',
                   'priority' => '0',
                   'propertyset' => '0',
                 ),
