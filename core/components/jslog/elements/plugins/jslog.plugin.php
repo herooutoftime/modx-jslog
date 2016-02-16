@@ -37,4 +37,3 @@ $jslog = $modx->getService('jslog', 'JSLog', $modx->getOption('jslog.core_path',
 
 $modx->regClientStartupHTMLBlock('<script type="text/javascript">var JSLog = {config: '.$modx->toJSON($jslog->config).'};</script>');
 $modx->regClientStartupHTMLBlock('<script type="text/javascript" src="'. $jslog->config['jsUrl'] .'jslog.js"></script>');
-//$modx->regClientScript($jslog->config['jsUrl'] . 'jslog.js');

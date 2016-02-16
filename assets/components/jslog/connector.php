@@ -13,7 +13,11 @@ require_once MODX_CONNECTORS_PATH.'index.php';
 
 $corePath = $modx->getOption('jslog.core_path', null, $modx->getOption('core_path').'components/jslog/');
 require_once $corePath.'model/jslog/jslog.class.php';
-$modx->jslog = new JSLog($modx);
+
+$config = array('errorData' => $_REQUEST['data']);
+$modx->jslog = new JSLog($modx, $config);
+$modx->jslog->setError($_REQUEST['data']);
+
 $modx->lexicon->load('jslog:default');
 
 /* Handle request */

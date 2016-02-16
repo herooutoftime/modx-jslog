@@ -6,4 +6,5 @@ JSLog Extra for MODx Revolution
 
 Documentation is available at [Andreas Bilz]()
 
-Log JS errors server-side
+* JSLog stores client-side JS errors in server-side logs for better debugging on client errors.
+* It's available for all contexts.

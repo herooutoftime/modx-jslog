@@ -4,15 +4,18 @@
  */
 // All request data is in $scriptProperties
 // Remove the action parameter value
-unset($scriptProperties['action']);
+// $data = json_decode($scriptProperties['data'], true);
+// $data['md5'] = $modx->jslog->generateKey(serialize($data));
+
+$modx->jslog->createFile();
 
 // Log to custom log file
 // Path: {core_path}/cache/log/javascript.log
-$modx->log(xPDO::LOG_LEVEL_ERROR, json_encode($scriptProperties),
-  array('target'=>'FILE', 'options'=> array('filename'=>'javascript.log')),
-  '',
-  'JS'
-);
+$modx->jslog->errorLog();
+
+$errorExists = $modx->jslog->errorExists();
+if(!$errorExists)
+  $modx->jslog->sendMail();
 
 // Return something useful
 // @todo Use for ExtJS message that an error happened and was reported

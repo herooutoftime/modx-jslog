@@ -27,6 +27,8 @@ class JSLog {
     public $modx;
     /** @var $props array */
     public $props;
+    /** @var $error array */
+    public $error;
 
     function __construct(&$modx, &$config = array()) {
         $this->modx =& $modx;
@@ -37,7 +39,7 @@ class JSLog {
         $basePath = $this->modx->getOption('jslog.core_path', $config, $this->modx->getOption('core_path').'components/jslog/');
         $assetsPath = $this->modx->getOption('jslog.assets_path', $config, $this->modx->getOption('assets_path').'components/jslog/');
         $assetsUrl = $this->modx->getOption('jslog.assets_url', $config, $this->modx->getOption('assets_url').'components/jslog/');
-        
+
         $this->config = array_merge(array(
             'basePath'       => $basePath,
             'assetsPath'     => $assetsPath,
@@ -51,6 +53,113 @@ class JSLog {
             'cssUrl'         => $assetsUrl.'css/',
             'assetsUrl'      => $assetsUrl,
             'connectorUrl'   => $assetsUrl.'connector.php',
+            'errorPath'      => $this->modx->getOption('core_path') . 'cache/jslog/',
             ),$config);
     }
+
+    public function setError($data)
+    {
+      $data = json_decode($data, true);
+      $data['time'] = $this->setTimeData();
+      $data['user'] = $this->setUserData();
+
+      $data['key'] = $this->generateKey(serialize($data));
+      $this->error = $data;
+
+    }
+
+    public function generateKey($value)
+    {
+      return md5($value);
+    }
+
+    public function setUserData()
+    {
+      $user = $this->modx->getUser();
+      return array(
+        'id' => $user->get('id'),
+        'username' => $user->get('username'),
+      );
+      // $userArr = $user->toArray();
+      // $bad_keys = array('password', 'hash_class', 'salt');
+      // return array_diff_key($userArr, array_flip($bad_keys));
+    }
+
+    public function setTimeData()
+    {
+      return array(
+        'timestamp' => time(),
+        'nice' => date('Y-m-d H:i:s')
+      );
+    }
+
+    public function createFile()
+    {
+      if(!is_dir($this->config['errorPath']))
+        mkdir($this->config['errorPath'], 0775, true);
+
+      if(!file_exists($this->config['errorPath'] . $this->error['key'])) {
+        touch($this->config['errorPath'] . $this->error['key']);
+        file_put_contents($this->config['errorPath'] . $this->error['key'], json_encode($this->error, JSON_PRETTY_PRINT));
+      }
+    }
+
+    public function errorExists()
+    {
+      $remember = $this->errorRemember();
+      if(!$remember && file_exists($this->config['errorPath'] . $this->error['key']))
+        return true;
+      return false;
+    }
+
+    public function errorRemember()
+    {
+
+      $interval = $this->modx->getOption('jslog.error_interval', '', 0);
+      $file = new SplFileInfo($this->config['errorPath'] . $this->error['key']);
+      $interval = 0;
+      if($file->getCTime() < time() - $interval) {
+        touch($this->config['errorPath'] . $this->error['key']);
+        return true;
+        // unlink($this->config['errorPath'] . $this->error['key']);
+      }
+      return false;
+    }
+
+    public function errorLog()
+    {
+      $this->modx->log(xPDO::LOG_LEVEL_ERROR, json_encode($this->error),
+        array('target'=>'FILE', 'options'=> array('filename'=>'javascript.log')),
+        '',
+        'JS'
+      );
+
+    }
+
+    public function sendMail()
+    {
+
+      if(!$this->modx->getOption('jslog.send_mail'))
+        return;
+
+      $error = file_get_contents($this->config['errorPath'] . $this->error['key']);
+      $setting_emails = explode(PHP_EOL, $this->modx->getOption('jslog.email'));
+
+      $this->modx->getService('mail', 'mail.modPHPMailer');
+      $this->modx->mail->set(modMail::MAIL_BODY,$error);
+      $this->modx->mail->set(modMail::MAIL_FROM,'web@nachhaltigkeit.at');
+      $this->modx->mail->set(modMail::MAIL_FROM_NAME,'Web @ Nachhaltigkeit');
+      $this->modx->mail->set(modMail::MAIL_SUBJECT,'JSLog: We caught an error!');
+
+      $this->modx->mail->address('to', $setting_emails[0]);
+      // foreach($setting_emails as $email) {
+      //   $this->modx->mail->address('to', $email);
+      // }
+
+      if (!$this->modx->mail->send()) {
+          $this->modx->log(modX::LOG_LEVEL_ERROR,'An error occurred while trying to send the email: '.$this->modx->mail->mailer->ErrorInfo);
+      }
+      $this->modx->mail->reset();
+    }
+
 }
