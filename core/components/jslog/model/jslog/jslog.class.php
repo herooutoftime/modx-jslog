@@ -173,8 +173,12 @@ class JSLog {
      */
     public function errorLog()
     {
+      // Enables day by day log file creation
+      // Prevents log file blow up
+      $logfile = 'jslog/' . date('Y-m-d') . '/javascript.log';
+
       $this->modx->log(xPDO::LOG_LEVEL_ERROR, json_encode($this->error),
-        array('target'=>'FILE', 'options'=> array('filename'=>'javascript.log')),
+        array('target'=>'FILE', 'options'=> array('filename' => $logfile)),
         '',
         'JS'
       );
@@ -195,7 +199,8 @@ class JSLog {
       if(!$this->modx->getOption('jslog.send_mail'))
         return;
 
-      $error = file_get_contents($this->config['errorPath'] . $this->error['key']);
+      $error = json_decode(file_get_contents($this->config['errorPath'] . $this->error['key']), true);
+
       $setting_emails = explode(PHP_EOL, $this->modx->getOption('jslog.email'));
 
       $this->modx->getService('mail', 'mail.modPHPMailer');

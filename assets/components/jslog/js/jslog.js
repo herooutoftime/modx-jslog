@@ -204,7 +204,7 @@
 window.onerror = function (msg, jsUrl, line)
 {
   Ext.onReady(function() {
-    
+
     if(!JSLog.config.enabled) {
       console.log('SORRY, NOT ALLOWED TO WORK!');
       console.log('CHANGE JSLog SET ENABLED YES');

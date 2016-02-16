@@ -16,8 +16,8 @@ $components = array(
     'packageName' => 'JSLog',  /* No spaces, no dashes */
     'packageNameLower' => $packageNameLower,
     'packageDescription' => 'Log JS errors server-side',
-    'version' => '1.0.0',
-    'release' => 'beta1',
+    'version' => '1.0.1',
+    'release' => 'pl',
     'author' => 'Andreas Bilz',
     'email' => '<anti@herooutoftime.com>',
     'authorUrl' => 'http://www.herooutoftime.com',
@@ -54,17 +54,17 @@ $components = array(
      * and export them with exportObjects. If you do that, be sure to set
      * their namespace to the lowercase package name of your extra */
 
-    'newSystemSettings' => array(
-        'jslog_system_setting_status' => array( // key
-            'key' => 'jslog_system_setting_status',
-            'name' => 'jslog Status',
-            'description' => 'Enable/Disable JSLog',
-            'namespace' => 'jslog',
-            'xtype' => 'combo-boolean',
-            'value' => true,
-            // 'area' => 'default',
-        ),
-    ),
+    // 'newSystemSettings' => array(
+    //     'jslog_system_setting_status' => array( // key
+    //         'key' => 'jslog_system_setting_status',
+    //         'name' => 'jslog Status',
+    //         'description' => 'Enable/Disable JSLog',
+    //         'namespace' => 'jslog',
+    //         'xtype' => 'combo-boolean',
+    //         'value' => true,
+    //         // 'area' => 'default',
+    //     ),
+    // ),
 
     /* ************************ NEW SYSTEM EVENTS ************************* */
 
